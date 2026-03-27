@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Scoundrel: a polished solo dungeon-crawl card game built with vanilla HTML, CSS, and JavaScript."
+    />
+    <title>Scoundrel</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to game</a>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Solo Card Game</p>
+          <h1>Scoundrel</h1>
+        </div>
+
+        <div class="topbar-actions" role="toolbar" aria-label="Game controls">
+          <button id="new-game-button" class="button button-primary button-small">New Game</button>
+          <button id="restart-button" class="button button-secondary button-small">Restart</button>
+          <button
+            id="help-button"
+            class="button button-ghost button-small"
+            aria-haspopup="dialog"
+            aria-controls="help-modal"
+          >
+            How to Play
+          </button>
+        </div>
+      </header>
+
+      <main id="main-content" class="game-layout">
+        <section class="hud panel" aria-label="Game status">
+          <article class="hud-item hud-item-health">
+            <div class="hud-label-row">
+              <h2>Health</h2>
+              <span id="health-value" class="panel-value">20 / 20</span>
+            </div>
+            <div class="meter" aria-hidden="true">
+              <div id="health-fill" class="meter-fill"></div>
+            </div>
+          </article>
+
+          <article class="hud-item">
+            <div class="hud-label-row">
+              <h2>Weapon</h2>
+              <span id="weapon-value" class="panel-value">None</span>
+            </div>
+            <p id="weapon-details" class="muted">Last defeated: —</p>
+          </article>
+
+          <article class="hud-item hud-stat-pair" aria-label="Turn details">
+            <div>
+              <h2>Turn</h2>
+              <p id="turn-value" class="stat-number">1</p>
+            </div>
+            <div>
+              <h2>Deck</h2>
+              <p id="deck-value" class="stat-number">44</p>
+            </div>
+          </article>
+
+          <article class="hud-item hud-stat-pair" aria-label="Discard and avoid state">
+            <div>
+              <h2>Discard</h2>
+              <p id="discard-value" class="stat-number">0</p>
+            </div>
+            <div>
+              <h2>Avoid</h2>
+              <p id="avoid-state" class="stat-number">Ready</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="room-section panel" aria-labelledby="room-heading">
+          <div class="section-header room-header">
+            <div>
+              <h2 id="room-heading">Visible Room</h2>
+              <p id="room-status" class="muted">Choose cards to face. The 4th carries forward.</p>
+            </div>
+            <p class="muted room-hint">Select cards, then face the room.</p>
+          </div>
+
+          <div id="room-grid" class="room-grid" role="list" aria-label="Current room cards"></div>
+
+          <div class="room-actions" aria-label="Room actions">
+            <button id="resolve-button" class="button button-primary">Face Room</button>
+            <button id="avoid-button" class="button button-warning">Avoid Room</button>
+          </div>
+        </section>
+
+        <section class="panel log-panel" aria-labelledby="log-heading">
+          <div class="section-header">
+            <h2 id="log-heading">Action Log</h2>
+            <button id="clear-log-button" class="button button-ghost button-small">Jump to Top</button>
+          </div>
+          <div
+            id="action-log"
+            class="action-log"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions text"
+            aria-label="Action log"
+          ></div>
+        </section>
+
+        <aside id="debug-panel" class="panel debug-panel" hidden aria-label="Debug panel">
+          <div class="section-header">
+            <h2>Debug</h2>
+          </div>
+          <pre id="debug-content"></pre>
+        </aside>
+      </main>
+    </div>
+
+    <div id="help-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-card">
+        <div class="section-header modal-header">
+          <h2 id="help-title">How to Play</h2>
+          <button id="close-help-button" class="button button-ghost button-small" aria-label="Close rules dialog">
+            Close
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <h3>Goal</h3>
+          <p>Survive the dungeon. Win by clearing the deck. Lose if health reaches 0.</p>
+
+          <h3>Cards</h3>
+          <ul>
+            <li><strong>Monsters</strong>: ♣ and ♠, values 2-14.</li>
+            <li><strong>Weapons</strong>: ♦ 2-10.</li>
+            <li><strong>Potions</strong>: ♥ 2-10.</li>
+          </ul>
+
+          <h3>Each turn</h3>
+          <ol>
+            <li>Draw until 4 cards are visible, unless the deck is nearly empty.</li>
+            <li>Either <strong>Avoid</strong> the room or <strong>Face</strong> it.</li>
+            <li>Select the cards you want to resolve, then press <strong>Face Room</strong>.</li>
+            <li>The remaining visible card carries into the next room.</li>
+          </ol>
+
+          <h3>Important rules</h3>
+          <ul>
+            <li><strong>No consecutive avoids</strong>.</li>
+            <li><strong>Only 1 potion per room</strong> heals you. Extra potions are discarded with no effect.</li>
+            <li>
+              <strong>Weapon chain rule</strong>: once a weapon defeats a monster, it may only defeat later monsters with an
+              equal or lower value. Example: if ♦7 defeats a 6, it can later defeat 6 or less, but not 8.
+            </li>
+            <li>Equipping a new weapon discards the old weapon and its monster stack.</li>
+          </ul>
+
+          <h3>Scoring</h3>
+          <ul>
+            <li><strong>Win</strong>: score = remaining health.</li>
+            <li><strong>Loss</strong>: score = negative sum of monster values still left in the dungeon.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="endgame-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="endgame-title" hidden>
+      <div class="modal-backdrop"></div>
+      <div class="modal-card modal-card-compact">
+        <div class="section-header modal-header">
+          <h2 id="endgame-title">Run Complete</h2>
+        </div>
+
+        <div class="modal-body endgame-body">
+          <p id="endgame-summary" class="endgame-summary">The dungeon awaits.</p>
+          <div class="endgame-actions">
+            <button id="endgame-new-game-button" class="button button-primary">New Game</button>
+            <button id="endgame-close-button" class="button button-ghost">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
