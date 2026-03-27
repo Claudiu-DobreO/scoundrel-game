@@ -24,13 +24,13 @@ const elements = {
   deckValue: document.querySelector('#deck-value'),
   discardValue: document.querySelector('#discard-value'),
   avoidState: document.querySelector('#avoid-state'),
+  avoidHint: document.querySelector('#avoid-hint'),
   roomStatus: document.querySelector('#room-status'),
   roomGrid: document.querySelector('#room-grid'),
   actionLog: document.querySelector('#action-log'),
   avoidButton: document.querySelector('#avoid-button'),
   resolveButton: document.querySelector('#resolve-button'),
   newGameButton: document.querySelector('#new-game-button'),
-  restartButton: document.querySelector('#restart-button'),
   helpButton: document.querySelector('#help-button'),
   closeHelpButton: document.querySelector('#close-help-button'),
   helpModal: document.querySelector('#help-modal'),
@@ -140,9 +140,12 @@ const describeWeapon = () => {
   return `${getSuitSymbol(state.weapon.card)}${getValueLabel(state.weapon.card.value)}`;
 };
 
-const getWeaponLastDefeatedText = () => {
-  if (!state.weapon || state.weapon.lastDefeatedValue === null) return 'Last defeated: —';
-  return `Last defeated: ${state.weapon.lastDefeatedValue}`;
+const getWeaponChainText = () => {
+  if (!state.weapon) return 'No ♦ equipped — take one from the room.';
+  if (state.weapon.lastDefeatedValue === null) {
+    return 'After first kill, only that rank or lower.';
+  }
+  return `Chain limit: monsters must be rank ${state.weapon.lastDefeatedValue} or lower.`;
 };
 
 const isCardPlayable = (card) => {
@@ -516,7 +519,7 @@ const renderLog = () => {
   state.logs.forEach((entry) => {
     const logItem = document.createElement('div');
     logItem.className = 'log-entry';
-    logItem.innerHTML = `<strong>Turn ${entry.turn}</strong> — ${entry.message}`;
+    logItem.innerHTML = `<strong>Cycle ${entry.turn}</strong> — ${entry.message}`;
     elements.actionLog.append(logItem);
   });
 };
@@ -525,11 +528,27 @@ const renderHud = () => {
   elements.healthValue.textContent = `${state.health} / ${MAX_HEALTH}`;
   elements.healthFill.style.width = `${(state.health / MAX_HEALTH) * 100}%`;
   elements.weaponValue.textContent = describeWeapon();
-  elements.weaponDetails.textContent = getWeaponLastDefeatedText();
+  elements.weaponDetails.textContent = getWeaponChainText();
   elements.turnValue.textContent = String(state.turn);
   elements.deckValue.textContent = String(state.deck.length);
   elements.discardValue.textContent = String(state.discard.length);
-  elements.avoidState.textContent = canAvoidRoom() ? 'Ready' : state.lastActionWasAvoid ? 'Blocked' : 'Unavailable';
+
+  if (state.status !== 'playing') {
+    elements.avoidState.textContent = '—';
+    elements.avoidHint.textContent = '';
+  } else if (canAvoidRoom()) {
+    elements.avoidState.textContent = 'Ready';
+    elements.avoidHint.textContent = 'Return this room to the deck; next cycle cannot avoid.';
+  } else if (state.lastActionWasAvoid) {
+    elements.avoidState.textContent = 'Blocked';
+    elements.avoidHint.textContent = 'Face a room before avoiding again.';
+  } else if (state.room.length < 4) {
+    elements.avoidState.textContent = 'Unavailable';
+    elements.avoidHint.textContent = 'Need four visible cards first.';
+  } else {
+    elements.avoidState.textContent = 'Unavailable';
+    elements.avoidHint.textContent = 'Cannot avoid right now.';
+  }
 
   const roomCount = state.room.length;
   const requiredSelections = getRequiredSelectionsCount();
@@ -616,15 +635,6 @@ const bindEvents = () => {
   elements.newGameButton.addEventListener('click', () => {
     setEndgameModalOpen(false);
     buildNewState();
-    render();
-  });
-
-  elements.restartButton.addEventListener('click', () => {
-    const savedState = loadSavedState();
-    if (!savedState) return;
-    Object.assign(state, savedState);
-    state.selectedCardIds = Array.isArray(state.selectedCardIds) ? state.selectedCardIds : [];
-    setEndgameModalOpen(false);
     render();
   });
 

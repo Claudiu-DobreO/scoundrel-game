@@ -183,6 +183,12 @@ button:disabled {
   font-size: 0.76rem;
 }
 
+.hud-item .hud-micro {
+  margin-top: 0.22rem;
+  font-size: 0.65rem;
+  line-height: 1.25;
+}
+
 .panel-value,
 .stat-number {
   font-size: 0.98rem;

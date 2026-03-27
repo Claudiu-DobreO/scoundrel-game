@@ -134,7 +134,7 @@ You lose when health drops to **0 or less**.
 - ARIA live action log
 - Help / rules modal
 - Flip-style reveal animation
-- LocalStorage persistence for restart / reload continuity
+- LocalStorage persistence across page reloads
 - Optional hidden debug panel
   - Toggle with **Ctrl/Cmd + D**
 

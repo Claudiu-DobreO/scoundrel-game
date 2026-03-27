@@ -22,7 +22,6 @@
 
         <div class="topbar-actions" role="toolbar" aria-label="Game controls">
           <button id="new-game-button" class="button button-primary button-small">New Game</button>
-          <button id="restart-button" class="button button-secondary button-small">Restart</button>
           <button
             id="help-button"
             class="button button-ghost button-small"
@@ -54,25 +53,29 @@
             <p id="weapon-details" class="muted">Last defeated: —</p>
           </article>
 
-          <article class="hud-item hud-stat-pair" aria-label="Turn details">
+          <article class="hud-item hud-stat-pair" aria-label="Cycle and draw pile">
             <div>
-              <h2>Turn</h2>
+              <h2>Cycle</h2>
               <p id="turn-value" class="stat-number">1</p>
+              <p class="muted hud-micro">Each room cleared or avoided</p>
             </div>
             <div>
-              <h2>Deck</h2>
+              <h2>Draw pile</h2>
               <p id="deck-value" class="stat-number">44</p>
+              <p class="muted hud-micro">Hidden cards not in the room</p>
             </div>
           </article>
 
-          <article class="hud-item hud-stat-pair" aria-label="Discard and avoid state">
+          <article class="hud-item hud-stat-pair" aria-label="Discard pile and avoid">
             <div>
-              <h2>Discard</h2>
+              <h2>Discard pile</h2>
               <p id="discard-value" class="stat-number">0</p>
+              <p class="muted hud-micro">Cards already resolved</p>
             </div>
             <div>
               <h2>Avoid</h2>
               <p id="avoid-state" class="stat-number">Ready</p>
+              <p id="avoid-hint" class="muted hud-micro"></p>
             </div>
           </article>
         </section>
